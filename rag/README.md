@@ -1,3 +1,10 @@
+
+## Acknowledgments
+
+This project is based on [RAG ChatBot](https://github.com/umbertogriffo/rag-chatbot.git),  
+which is licensed under the **Apache-2.0 License**.  
+See the original repository [here](https://github.com/umbertogriffo/rag-chatbot.git).
+
 # RAG (Retrieval-augmented generation) ChatBot
 
 [![CI](https://github.com/umbertogriffo/rag-chatbot/workflows/CI/badge.svg)](https://github.com/umbertogriffo/rag-chatbot/actions/workflows/ci.yaml)
