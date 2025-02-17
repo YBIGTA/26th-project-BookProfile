@@ -73,7 +73,7 @@ class DirectoryLoader:
     def load_file(self, doc_path: Path, docs: list[Document], pbar: Any | None) -> None:
         """
         Load document from the specified path.
-
+    
         Args:
             doc_path (Path): The path to the document.
             docs: List of documents to append to.
@@ -83,12 +83,31 @@ class DirectoryLoader:
             try:
                 logger.debug(f"Processing file: {str(doc_path)}")
                 text = ""
-                # 확장자에 따라 분기: json 파일이면 별도로 처리
                 if doc_path.suffix.lower() == ".json":
                     with open(doc_path, "r", encoding="utf-8") as f:
-                        data = json.load(f)
-                        # JSON 데이터를 예쁘게 문자열로 변환
+                        file_content = f.read()
+                    # 먼저 전체 파일을 한 번에 파싱을 시도합니다.
+                    try:
+                        data = json.loads(file_content)
                         text = json.dumps(data, indent=2, ensure_ascii=False)
+                    except json.JSONDecodeError as e:
+                        logger.warning(f"Standard json.loads() failed for {doc_path}: {e}. Trying to decode multiple JSON objects.")
+                        # 여러 JSON 객체가 연속되어 있을 경우, raw_decode()를 사용하여 파싱합니다.
+                        decoder = json.JSONDecoder()
+                        pos = 0
+                        data_list = []
+                        while pos < len(file_content):
+                            try:
+                                file_content = file_content.lstrip()  # 앞쪽 공백 제거
+                                if not file_content:
+                                    break
+                                obj, idx = decoder.raw_decode(file_content)
+                                data_list.append(obj)
+                                file_content = file_content[idx:]
+                            except json.JSONDecodeError as line_e:
+                                logger.error(f"Error decoding JSON from {doc_path}: {line_e}")
+                                break
+                        text = json.dumps(data_list, indent=2, ensure_ascii=False)
                 else:
                     # 기본적으로 unstructured.partition을 사용하여 문서 내용을 추출
                     elements = partition(filename=str(doc_path), **self.partition_kwargs)
@@ -99,6 +118,7 @@ class DirectoryLoader:
             finally:
                 if pbar:
                     pbar.update(1)
+
 
 
 if __name__ == "__main__":
