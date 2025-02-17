@@ -25,7 +25,7 @@ def load_documents(docs_path: Path) -> list[Document]:
     """
     loader = DirectoryLoader(
         path=docs_path,
-        glob="**/*.md",
+        glob="**/*.*",  # 기존 "**/*.md" 대신 모든 파일을 대상으로 합니다.
         show_progress=True,
     )
     return loader.load()
@@ -44,13 +44,21 @@ def split_chunks(sources: list, chunk_size: int = 512, chunk_overlap: int = 25) 
         List: A list of smaller chunks obtained from the input sources.
     """
     chunks = []
-    splitter = create_recursive_text_splitter(
-        format=Format.MARKDOWN.value, chunk_size=chunk_size, chunk_overlap=chunk_overlap
-    )
-    for chunk in splitter.split_documents(sources):
-        chunks.append(chunk)
-    return chunks
+    for source in sources:
+        # 기본 형식은 markdown, metadata의 source 필드로 판단 (예: "file.md", "file.json")
+        file_source = source.metadata.get("source", "").lower() if source.metadata else ""
+        if file_source.endswith(".json"):
+            file_format = Format.JSON.value
+        else:
+            file_format = Format.MARKDOWN.value
 
+        # 각 문서별로 적절한 형식의 splitter를 생성합니다.
+        splitter = create_recursive_text_splitter(
+            format=file_format, chunk_size=chunk_size, chunk_overlap=chunk_overlap
+        )
+        # 각 문서를 분리하고 결과를 추가합니다.
+        chunks.extend(splitter.split_documents([source]))
+    return chunks
 
 def build_memory_index(docs_path: Path, vector_store_path: str, chunk_size: int, chunk_overlap: int):
     logger.info(f"Loading documents from: {docs_path}")

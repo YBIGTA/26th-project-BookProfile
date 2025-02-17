@@ -3,48 +3,44 @@ from enum import Enum
 
 class Format(Enum):
     MARKDOWN = "markdown"
+    JSON = "json"  # JSON 형식을 추가합니다.
 
 
 SUPPORTED_FORMATS = {
     Format.MARKDOWN.value: [
-        # First, try to split along Markdown headings (starting with level 2)
+        # Markdown을 위한 분리자들
         "\n#{1,6} ",
-        # Note the alternative syntax for headings (below) is not handled here
-        # Heading level 2
-        # ---------------
-        # End of code block
         "```\n",
-        # Horizontal lines
         "\n\\*\\*\\*+\n",
         "\n---+\n",
         "\n___+\n",
-        # Note that this splitter doesn't handle horizontal lines defined
-        # by *three or more* of ***, ---, or ___, but this is not handled
         "\n\n",
         "\n",
         " ",
         "",
+    ],
+    Format.JSON.value: [
+        # JSON은 일반적으로 전체를 하나의 문서로 처리하므로,
+        # 분리자가 필요없습니다. 빈 문자열을 사용하여 전체 내용을 하나로 반환합니다.
+        ""
     ]
 }
 
 
 def get_separators(format: str):
     """
-    Retrieve the list of separators for a given format.
+    지정한 포맷에 대한 분리자 리스트를 반환합니다.
 
     Args:
-        format (str): The format for which to retrieve separators.
+        format (str): 분리자를 가져올 포맷.
 
     Returns:
-        list[str]: A list of separators for the specified format.
+        list[str]: 지정한 포맷에 대한 분리자 리스트.
 
     Raises:
-        KeyError: If the format is not supported.
+        KeyError: 지원되지 않는 포맷인 경우.
     """
     separators = SUPPORTED_FORMATS.get(format)
-
-    # validate input
     if separators is None:
         raise KeyError(format + " is a not supported format")
-
     return separators

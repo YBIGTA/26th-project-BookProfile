@@ -1,4 +1,5 @@
 import concurrent.futures
+import json
 from pathlib import Path
 from typing import Any
 
@@ -74,22 +75,27 @@ class DirectoryLoader:
         Load document from the specified path.
 
         Args:
-            doc_path (str): The path to the document.
+            doc_path (Path): The path to the document.
             docs: List of documents to append to.
             pbar: Progress bar. Defaults to None.
-
         """
         if doc_path.is_file():
             try:
                 logger.debug(f"Processing file: {str(doc_path)}")
-                # Loads document from the specified path.
-                # The unstructured `partition` function and will automatically detect the file type with libmagic to
-                # determine the file's type and route it to the appropriate partitioning function.
-                elements = partition(filename=str(doc_path), **self.partition_kwargs)
-                # Note: The `partition` function returns a list of elements that we can filter by type based on the
-                # specific format.
-                text = "\n\n".join([str(el) for el in elements])
-                docs.extend([Document(page_content=text, metadata={"source": str(doc_path)})])
+                text = ""
+                # 확장자에 따라 분기: json 파일이면 별도로 처리
+                if doc_path.suffix.lower() == ".json":
+                    with open(doc_path, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                        # JSON 데이터를 예쁘게 문자열로 변환
+                        text = json.dumps(data, indent=2, ensure_ascii=False)
+                else:
+                    # 기본적으로 unstructured.partition을 사용하여 문서 내용을 추출
+                    elements = partition(filename=str(doc_path), **self.partition_kwargs)
+                    text = "\n\n".join([str(el) for el in elements])
+                docs.append(Document(page_content=text, metadata={"source": str(doc_path)}))
+            except Exception as e:
+                logger.error(f"Error processing file {doc_path}: {e}")
             finally:
                 if pbar:
                     pbar.update(1)
@@ -98,9 +104,10 @@ class DirectoryLoader:
 if __name__ == "__main__":
     root_folder = Path(__file__).resolve().parent.parent.parent
     docs_path = root_folder / "docs"
+    # glob 패턴을 "*.*"로 변경하면 모든 파일을 읽어오게 할 수도 있습니다.
     loader = DirectoryLoader(
         path=docs_path,
-        glob="*.md",
+        glob="*.*",
         recursive=True,
         use_multithreading=True,
         show_progress=True,
