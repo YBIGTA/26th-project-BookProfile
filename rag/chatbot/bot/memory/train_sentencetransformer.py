@@ -24,7 +24,7 @@ if __name__ == "__main__":
     model_name = 'all-MiniLM-L6-v2'
     model = SentenceTransformer(model_name)
 
-    data_file = load_dataset("bookcorpus", "plain_text", split="train")
+    data_file = load_dataset("bookcorpus", "plain_text", split="train",trust_remote_code=True)
     sentences = [example["text"] for example in data_file if example["text"].strip()]
 
 
