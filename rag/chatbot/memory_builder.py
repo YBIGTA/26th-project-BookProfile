@@ -98,7 +98,7 @@ def get_args() -> argparse.Namespace:
 
 def run_train_emb():
     train_cmd = f"python3 bot/memory/train_sentencetransformer.py --epoch 5 --batch_size 32"
-    os.system(eval_cmd)
+    os.system(train_cmd)
 
 def main(parameters):
     root_folder = Path(__file__).resolve().parent.parent
