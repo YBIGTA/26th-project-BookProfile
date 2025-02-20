@@ -97,7 +97,7 @@ def get_args() -> argparse.Namespace:
     return parser.parse_args()
 
 def run_train_emb():
-    train_cmd = f"python3 bot/memory/train_sentencetransformer.py --epoch 5 --batch_size 32"
+    train_cmd = f"python3 chatbot/bot/memory/train_sentencetransformer.py --epoch 5 --batch_size 32"
     os.system(train_cmd)
 
 def main(parameters):
