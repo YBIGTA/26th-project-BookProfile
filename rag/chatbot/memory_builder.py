@@ -109,7 +109,7 @@ def get_args() -> argparse.Namespace:
     parser.add_argument(
         "--doft",
         type=bool,
-        help=help="Learning rate for training",
+        help="Learning rate for training",
         default=False, 
     )
 

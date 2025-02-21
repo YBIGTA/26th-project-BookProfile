@@ -5,6 +5,7 @@ from torch.utils.data import DataLoader
 import logging
 import random
 from pathlib import Path
+import json
 
 import argparse
 
@@ -13,7 +14,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     
     # Specific training setups (not used)
-    parser.add_argument("--epoch", type=int, default=5, help="Upper limit on outer loop iterations")
+    parser.add_argument("--epoch", type=int, default=1, help="Upper limit on outer loop iterations")
     parser.add_argument("--batch_size", type=int, default=32, help="Batch size for training")
     args = parser.parse_args()
     return args
@@ -26,10 +27,11 @@ if __name__ == "__main__":
 
     model_name = 'all-MiniLM-L6-v2'
     model = SentenceTransformer(model_name)
-    current_file_path = Path(__file__).resolve()  # 현재 실행 파일 절대 경로
-    data_file_path = current_file_path.parents[2] / "supcon_books_data.json"
+    file_path = Path(__file__).resolve().parent.parent.parent.parent
+  # 현재 실행 파일 절대 경로
+    data_file_path =  file_path/ "supcon_books_data.json"
     with open(data_file_path, "r", encoding="utf-8") as file:
-    supcon_data = json.load(file)
+        supcon_data = json.load(file)
     
     # Positive & Negative Pair 데이터
     positive_pairs = supcon_data["positive_pairs"]
@@ -46,21 +48,20 @@ if __name__ == "__main__":
         train_examples.append(InputExample(texts=[sent1, sent2], label=0.0))  # 다른 문장은 0
 
     # 데이터 확인
-    for example in train_examples:
-        print(example.texts, example.label)
+    # for example in train_examples:
+    #     print(example.texts, example.label)
         
     model = SentenceTransformer('all-MiniLM-L6-v2')
 
     # DataLoader 생성
-    train_dataloader = DataLoader(train_examples, shuffle=True, batch_size=32)
+    train_dataloader = DataLoader(train_examples, shuffle=True, batch_size=args.batch_size)
 
     # Contrastive Loss 적용
     train_loss = losses.ContrastiveLoss(model)
 
     # 모델 학습
     model.fit(train_objectives=[(train_dataloader, train_loss)],
-            epochs=num_epochs,
-            batch_size=5,
+            epochs=args.epoch,
             warmup_steps=100,
             output_path='./output/contrastive_model')
     
