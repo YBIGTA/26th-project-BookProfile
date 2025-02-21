@@ -13,7 +13,6 @@ def parse_args():
     # Specific training setups (not used)
     parser.add_argument("--epoch", type=int, default=5, help="Upper limit on outer loop iterations")
     parser.add_argument("--batch_size", type=int, default=32, help="Batch size for training")
-    parser.add_argument("--rag", type=bool, default=False, help="Learning rate for training")
     args = parser.parse_args()
     return args
 
@@ -26,18 +25,13 @@ if __name__ == "__main__":
     model_name = 'all-MiniLM-L6-v2'
     model = SentenceTransformer(model_name)
     
+    with open("supcon_books_data.json", "r", encoding="utf-8") as file:
+    supcon_data = json.load(file)
+    
     # Positive & Negative Pair 데이터
-    positive_pairs = [
-        ("나는 책을 좋아해.", "독서는 내 취미야."),
-        ("그녀는 피아노를 잘 친다.", "그녀는 음악을 좋아해."),
-        ("서울은 한국의 수도다.", "서울에는 많은 사람들이 산다."),
-    ]
+    positive_pairs = supcon_data["positive_pairs"]
 
-    negative_pairs = [
-        ("나는 책을 좋아해.", "오늘 날씨가 참 좋네."),
-        ("그녀는 피아노를 잘 친다.", "나는 아침에 운동을 한다."),
-        ("서울은 한국의 수도다.", "나는 축구 경기를 좋아해."),
-    ]
+    negative_pairs = supcon_data["negative_pairs"]
 
     # InputExample 형식으로 변환
     train_examples = []
@@ -62,7 +56,8 @@ if __name__ == "__main__":
 
     # 모델 학습
     model.fit(train_objectives=[(train_dataloader, train_loss)],
-            epochs=5,
+            epochs=num_epochs,
+            batch_size=5,
             warmup_steps=100,
             output_path='./output/contrastive_model')
     

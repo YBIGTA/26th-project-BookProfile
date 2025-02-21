@@ -14,6 +14,7 @@ from helpers.log import get_logger
 logger = get_logger(__name__)
 
 
+
 def load_documents(docs_path: Path) -> list[Document]:
     """
     Loads Markdown documents from the specified path.
@@ -61,7 +62,7 @@ def split_chunks(sources: list, chunk_size: int = 512, chunk_overlap: int = 25) 
         chunks.extend(splitter.split_documents([source]))
     return chunks
 
-def build_memory_index(docs_path: Path, vector_store_path: str, chunk_size: int, chunk_overlap: int):
+def build_memory_index(docs_path: Path, vector_store_path: str, chunk_size: int, chunk_overlap: int, doft: bool) -> None:
     logger.info(f"Loading documents from: {docs_path}")
     sources = load_documents(docs_path)
     logger.info(f"Number of loaded documents: {len(sources)}")
@@ -71,7 +72,7 @@ def build_memory_index(docs_path: Path, vector_store_path: str, chunk_size: int,
     logger.info(f"Number of generated chunks: {len(chunks)}")
 
     logger.info("Creating memory index...")
-    embedding = Embedder()
+    embedding = Embedder(doft=doft)
     vector_database = Chroma(persist_directory=str(vector_store_path), embedding=embedding)
     vector_database.from_chunks(chunks)
     logger.info("Memory Index has been created successfully!")
@@ -93,25 +94,45 @@ def get_args() -> argparse.Namespace:
         required=False,
         default=25,
     )
+    parser.add_argument(
+        "--epoch",
+        type=int,
+        help="Upper limit on outer loop iterations",
+        default=5,
+    )
+    parser.add_argument(
+        "--batch_size",
+        type=int,
+        help="Batch size for training",
+        default=32,
+    )
+    parser.add_argument(
+        "--doft",
+        type=bool,
+        help=help="Learning rate for training",
+        default=False, 
+    )
 
     return parser.parse_args()
 
-def run_train_emb():
-    train_cmd = f"python3 chatbot/bot/memory/train_sentencetransformer.py --epoch 5 --batch_size 32"
-    os.system(train_cmd)
+def run_train_emb(parameters):
+    if parameters.doft:
+        train_cmd = f"python3 chatbot/bot/memory/train_sentencetransformer.py --epoch {parameters.epoch} --batch_size {parameters.batch_size}"
+        os.system(train_cmd)
 
 def main(parameters):
     root_folder = Path(__file__).resolve().parent.parent
     doc_path = root_folder / "docs"
     vector_store_path = root_folder / "vector_store" / "docs_index"
     
-    run_train_emb()
+    run_train_emb(parameters)
 
     build_memory_index(
         doc_path,
         str(vector_store_path),
         parameters.chunk_size,
         parameters.chunk_overlap,
+        parameters.doft,
     )
 
 
