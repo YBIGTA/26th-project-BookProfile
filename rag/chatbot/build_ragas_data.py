@@ -2,7 +2,7 @@ import json
 import random
 
 # Contrastive Loss 학습 데이터
-with open("supcon_books_data.json", "r", encoding="utf-8") as file:
+with open("../supcon_books_data.json", "r", encoding="utf-8") as file:
     supcon_data = json.load(file)
     
 # Positive & Negative Pair 데이터

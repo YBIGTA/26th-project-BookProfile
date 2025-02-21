@@ -4,6 +4,8 @@ from sentence_transformers import SentenceTransformer, SentencesDataset, InputEx
 from torch.utils.data import DataLoader
 import logging
 import random
+from pathlib import Path
+
 import argparse
 
 def parse_args():
@@ -24,8 +26,9 @@ if __name__ == "__main__":
 
     model_name = 'all-MiniLM-L6-v2'
     model = SentenceTransformer(model_name)
-    
-    with open("supcon_books_data.json", "r", encoding="utf-8") as file:
+    current_file_path = Path(__file__).resolve()  # 현재 실행 파일 절대 경로
+    data_file_path = current_file_path.parents[2] / "supcon_books_data.json"
+    with open(data_file_path, "r", encoding="utf-8") as file:
     supcon_data = json.load(file)
     
     # Positive & Negative Pair 데이터
