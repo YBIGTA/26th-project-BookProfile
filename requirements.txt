@@ -3,3 +3,4 @@ selenium==4.11.2
 pymongo==4.3.3
 ipykernel==6.29.5
 python-dotenv==1.0.1
+sentence-transformers==2.2.2

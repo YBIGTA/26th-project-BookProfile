@@ -230,6 +230,52 @@ class MongoDBInserter:
         
         print("데이터 삽입 완료")
 
+    def run_di(self, book):
+        """
+        전체 데이터 삽입 과정을 순차적으로 실행합니다.
+
+        이 메서드는 다음과 같은 작업을 수행합니다:
+            1. MongoDB에 연결합니다.
+            2. JSON 파일에서 책 데이터를 읽어옵니다.
+            3. 각 책 데이터에 대해:
+                - 'book_name' 키가 없는 경우 해당 데이터를 건너뜁니다.
+                - 이미 존재하는 책이면 건너뜁니다.
+                - 'reviews' 키가 있으면 해당 값을 추출하고, 책 데이터에서 제거합니다.
+                - 책 데이터를 삽입하여 삽입된 문서의 _id를 가져옵니다.
+                - 추출한 리뷰 데이터를 전처리한 후 reviews 컬렉션에 삽입합니다.
+            4. 모든 데이터 삽입 작업이 완료되면 완료 메시지를 출력합니다.
+        """
+        self.connect_db()
+
+
+        
+        # 중복 체크
+        book_name = book.get("book_name")
+        if not book_name:
+            print("book_name 키가 없는 데이터 건너뜀")
+            return
+
+
+        if self.book_exists(book_name):
+            print(f"책 '{book_name}'은 이미 존재합니다. 건너뜁니다.")
+            return
+
+
+        # reviews 추출
+        reviews = book.pop("reviews", [])
+
+        # 책 삽입
+        book_id = self.insert_book(book)
+        if book_id is None:
+
+
+            # 리뷰 전처리 및 삽입
+            processed_reviews = self.preprocess_reviews(reviews, book_id)
+            self.insert_reviews(processed_reviews)
+            
+            print("데이터 삽입 완료")
+
+
 def main():
     """
     MongoDBInserter 인스턴스를 생성하고, 전체 데이터 삽입 과정을 실행하는 메인 함수입니다.
