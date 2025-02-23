@@ -1,5 +1,6 @@
 import argparse
 import sys
+import os 
 from pathlib import Path
 
 from bot.memory.embedder import Embedder
@@ -95,11 +96,16 @@ def get_args() -> argparse.Namespace:
 
     return parser.parse_args()
 
+def run_train_emb():
+    train_cmd = f"python3 chatbot/bot/memory/train_sentencetransformer.py --epoch 5 --batch_size 32"
+    os.system(train_cmd)
 
 def main(parameters):
     root_folder = Path(__file__).resolve().parent.parent
     doc_path = root_folder / "docs"
     vector_store_path = root_folder / "vector_store" / "docs_index"
+    
+    run_train_emb()
 
     build_memory_index(
         doc_path,
