@@ -4,13 +4,16 @@ import sentence_transformers
 
 
 class Embedder:
-    def __init__(self, model_name: str = "all-MiniLM-L6-v2", cache_folder: str | None = None, **kwargs: Any):
+    def __init__(self, model_name: str = "all-MiniLM-L6-v2",doft: bool = False , cache_folder: str | None = None, **kwargs: Any):
         """
         Initialize the Embedder class with the specified parameters.
 
         Args:
             **kwargs (Any): Additional keyword arguments to pass to the SentenceTransformer model.
         """
+        model_path='./output/contrastive_model'
+        if doft:
+            model_name=model_path
         self.client = sentence_transformers.SentenceTransformer(model_name, cache_folder=cache_folder, **kwargs)
 
     def embed_documents(self, texts: list[str], multi_process: bool = False, **encode_kwargs: Any) -> list[list[float]]:
