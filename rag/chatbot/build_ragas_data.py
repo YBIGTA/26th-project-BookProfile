@@ -7,13 +7,19 @@ import sys
 from bot.client.lama_cpp_client import LamaCppClient
 from bot.conversation.chat_history import ChatHistory
 from bot.conversation.conversation_handler import answer_with_context, refine_question
-from bot.conversation.ctx_strategy import get_ctx_synthesis_strategy
+from bot.conversation.ctx_strategy import (
+    BaseSynthesisStrategy,
+    get_ctx_synthesis_strategies,
+    get_ctx_synthesis_strategy,
+)
 from bot.memory.vector_database.chroma import Chroma
 from bot.model.model_registry import get_model_settings
 from helpers.log import get_logger
+from bot.memory.embedder import Embedder
+
 from datasets import Dataset
 from ragas import evaluate
-from ragas.metrics import faithfulness, answer_relevance, context_precision
+from ragas.metrics import faithfulness, answer_relevancy, context_precision
 
 logger = get_logger(__name__)
 
@@ -24,6 +30,10 @@ with open(f"{file_path}/supcon_books_data.json", "r", encoding="utf-8") as file:
 
 positive_pairs = supcon_data["positive_pairs"]
 negative_pairs = supcon_data["negative_pairs"]
+
+def load_ctx_synthesis_strategy(ctx_synthesis_strategy_name: str, _llm: LamaCppClient) -> BaseSynthesisStrategy:
+    ctx_synthesis_strategy = get_ctx_synthesis_strategy(ctx_synthesis_strategy_name, llm=_llm)
+    return ctx_synthesis_strategy
 
 # RAG 모델 초기화 함수
 def load_rag_chatbot():
@@ -38,13 +48,15 @@ def load_rag_chatbot():
 
     # 채팅 기록 및 컨텍스트 전략 설정
     chat_history = ChatHistory(total_length=2)
-    ctx_synthesis_strategy = get_ctx_synthesis_strategy("default", llm=llm)
+    ctx_synthesis_strategy  = load_ctx_synthesis_strategy('async-tree-summarization', _llm=llm)
 
     # 벡터 데이터베이스 로드
-    embedding = Chroma(persist_directory=str(vector_store_path))
+    embedding = Embedder() #Chroma(persist_directory=str(vector_store_path))
     index = Chroma(persist_directory=str(vector_store_path), embedding=embedding)
 
-    return llm, chat_history, ctx_synthesis_strategy, index
+    print('!!!log complete')
+
+    return llm, chat_history, ctx_synthesis_strategy , index
 
 # RAG 모델을 사용하여 답변 생성 함수
 def get_rag_answer(question, context, llm, chat_history, ctx_synthesis_strategy, index):
