@@ -230,7 +230,7 @@ class MongoDBInserter:
         
         print("데이터 삽입 완료")
 
-    def run_di(self, book):
+    def run_di2(self, book):
         """
         전체 데이터 삽입 과정을 순차적으로 실행합니다.
 
@@ -245,9 +245,10 @@ class MongoDBInserter:
                 - 추출한 리뷰 데이터를 전처리한 후 reviews 컬렉션에 삽입합니다.
             4. 모든 데이터 삽입 작업이 완료되면 완료 메시지를 출력합니다.
         """
+        
         self.connect_db()
-
-
+        print("run_di 실행")
+        
         
         # 중복 체크
         book_name = book.get("book_name")
@@ -257,8 +258,9 @@ class MongoDBInserter:
 
 
         if self.book_exists(book_name):
-            print(f"책 '{book_name}'은 이미 존재합니다. 건너뜁니다.")
-            return
+            print(f"책 '{book_name}'은 이미 존재합니다. 삭제 후 삽입.")
+            self.collection.delete_one({"book_name": book_name})
+            
 
 
         # reviews 추출
@@ -266,7 +268,7 @@ class MongoDBInserter:
 
         # 책 삽입
         book_id = self.insert_book(book)
-        if book_id is None:
+        if book_id is not None:
 
 
             # 리뷰 전처리 및 삽입
@@ -281,7 +283,7 @@ def main():
     MongoDBInserter 인스턴스를 생성하고, 전체 데이터 삽입 과정을 실행하는 메인 함수입니다.
     """
     inserter = MongoDBInserter()
-    inserter.run()
+    inserter.run_di2()
 
 if __name__ == "__main__":
     main()
