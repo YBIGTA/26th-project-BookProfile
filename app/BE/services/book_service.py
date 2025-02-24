@@ -1,29 +1,29 @@
 from bson import ObjectId
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from pymongo.database import Database
 
-async def add_book_to_user(db: Database, username: str, book_name: str):
+async def add_book_to_user(book_db: Database, user_db: Database, username: str, book_id: str):
     """
-    주어진 username에 해당하는 사용자의 books 필드에,
+    주어진 username에 해당하는 사용자의 book 필드에,
     books 컬렉션에서 book_name에 해당하는 책의 _id를 추가합니다.
     """
     # books 컬렉션에서 book_name에 해당하는 책을 조회합니다.
-    book = await db["books"].find_one({"book_name": book_name})
+    book = await book_db["books"].find_one({"_id": book_id})
     if not book:
         raise HTTPException(status_code=404, detail="Book not found")
     
-    # 책의 _id를 가져옵니다.
-    book_id = book["_id"]
-    
-    # 사용자의 문서에서 books 필드에 책의 _id를 추가합니다.
+    # 사용자의 문서에서 book 필드에 책의 _id를 추가합니다.
     # $addToSet은 이미 존재하는 값은 추가하지 않습니다.
-    result = await db["users"].update_one(
+    result = await user_db["users"].update_one(
         {"name": username},
         {"$addToSet": {"book": book_id}}
     )
-    
-    # result.modified_count가 0이면 이미 추가되었거나 사용자가 존재하지 않을 수 있음.
-    return book_id
+    if result.modified_count == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="사용자 상태 업데이트에 실패하였습니다."
+        )
+    return result
 
 async def get_book_info(db: Database, book_id: str):
     """
