@@ -23,12 +23,12 @@ class MongoDBInserter:
         load_dotenv()
 
         self.connection_URI = os.getenv("MONGO_URI")
-        self.json_file_path = os.getenv("json_file_path")
+        self.json_file_path = os.getenv("NONFICTION_JSON_PATH", os.getenv("json_file_path"))  # Try NONFICTION_JSON_PATH first, fallback to json_file_path
         
         if self.connection_URI is None:
             raise ValueError("환경 변수 'MONGO_URI' 설정 필요")
         if self.json_file_path is None:
-            raise ValueError("환경 변수 'json_file_path' 설정 필요")
+            raise ValueError("환경 변수 'NONFICTION_JSON_PATH' 또는 'json_file_path' 설정 필요")
         
         self.client = None
         self.db = None
@@ -187,6 +187,25 @@ class MongoDBInserter:
             except Exception as e:
                 print("리뷰 삽입 실패:", e)
 
+    def insert_review(self, review):
+        """
+        리뷰 데이터를 reviews 컬렉션에 삽입합니다.
+
+        이 메서드는 다음과 같은 작업을 수행합니다:
+        - review 딕셔너리가 비어있지 않은 경우, insert_one() 메서드를 사용하여 리뷰 데이터를 MongoDB의 reviews 컬렉션에 삽입합니다.
+        - 삽입이 성공하면 삽입된 리뷰 건수를 출력합니다.
+        - 삽입 중 오류가 발생하면 오류 메시지를 출력합니다.
+
+        Args:
+            review (dict): 삽입할 리뷰 데이터 딕셔너리.
+        """
+        if review:
+            try:
+                result = self.reviews_collection.insert_one(review)
+                print(f"리뷰 1건 삽입 성공")
+            except Exception as e:
+                print("리뷰 삽입 실패:", e)
+
     def run(self):
         """
         전체 데이터 삽입 과정을 순차적으로 실행합니다.
@@ -230,12 +249,76 @@ class MongoDBInserter:
         
         print("데이터 삽입 완료")
 
-def main():
+    def run_di2(self, book):
+        """
+        전체 데이터 삽입 과정을 순차적으로 실행합니다.
+
+        이 메서드는 다음과 같은 작업을 수행합니다:
+            1. MongoDB에 연결합니다.
+            2. JSON 파일에서 책 데이터를 읽어옵니다.
+            3. 각 책 데이터에 대해:
+                - 'book_name' 키가 없는 경우 해당 데이터를 건너뜁니다.
+                - 이미 존재하는 책이면 건너뜁니다.
+                - 'reviews' 키가 있으면 해당 값을 추출하고, 책 데이터에서 제거합니다.
+                - 책 데이터를 삽입하여 삽입된 문서의 _id를 가져옵니다.
+                - 추출한 리뷰 데이터를 전처리한 후 reviews 컬렉션에 삽입합니다.
+            4. 모든 데이터 삽입 작업이 완료되면 완료 메시지를 출력합니다.
+        """
+        
+        self.connect_db()
+        print("run_di 실행")
+        
+        
+        # 중복 체크
+        book_name = book.get("book_name")
+        if not book_name:
+            print("book_name 키가 없는 데이터 건너뜀")
+            return
+
+
+        if self.book_exists(book_name):
+            print(f"책 '{book_name}'은 이미 존재합니다. 삭제 후 삽입.")
+            self.collection.delete_one({"book_name": book_name})
+            
+
+
+        # reviews 추출
+        reviews = book.pop("reviews", [])
+
+        # 책 삽입
+        book_id = self.insert_book(book)
+        if book_id is not None:
+
+
+            # 리뷰 전처리 및 삽입
+            processed_reviews = self.preprocess_reviews(reviews, book_id)
+            self.insert_reviews(processed_reviews)
+            
+            print("데이터 삽입 완료")
+
+
+def main_nonfiction():
     """
-    MongoDBInserter 인스턴스를 생성하고, 전체 데이터 삽입 과정을 실행하는 메인 함수입니다.
+    논픽션 데이터를 MongoDB에 삽입하는 메인 함수입니다.
     """
     inserter = MongoDBInserter()
-    inserter.run()
+    inserter.connect_db()
+    books_data = inserter.load_books_data()
+    
+    if books_data:
+        for book in books_data:
+            # 책 데이터 삽입
+            book_id = inserter.insert_book(book)
+            
+            # 리뷰 데이터가 있다면 삽입
+            if 'reviews' in book:
+                reviews = book['reviews']
+                if reviews:
+                    for review in reviews:
+                        review['book_id'] = book_id  # 리뷰에 book_id 연결
+                        inserter.insert_review(review)
+        
+        print(f"{len(books_data)}개의 논픽션 도서 데이터 삽입 완료")
 
 if __name__ == "__main__":
-    main()
+    main_nonfiction()  # Changed to use nonfiction main function
