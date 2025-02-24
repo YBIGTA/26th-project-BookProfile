@@ -1,17 +1,21 @@
-import os
-from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 
-load_dotenv()
-
 class Settings(BaseSettings):
-    # DB_USERNAME = os.environ.get("DB_USERNAME")
-    # DB_HOST = os.environ.get("DB_HOST")
-    # DB_PASSWORD = os.environ.get("DB_PASSWORD")
-    # DB_PORT = os.environ.get("DB_PORT")
-    # MONGODB_URI: str = f"mongodb://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}"
-    MONGODB_URI: str = "mongodb://junchan:1234@3.34.178.2:27017/"
-    # class Config:
-    #     env_file = ".env"
+    DB_USERNAME: str
+    DB_HOST: str
+    DB_PASSWORD: str
+    DB_PORT: str
+
+    @property
+    def MONGODB_URI(self) -> str:
+        if self.DB_USERNAME and self.DB_PASSWORD and self.DB_HOST and self.DB_PORT:
+            URI = f"mongodb://{self.DB_USERNAME}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/"
+        else:
+            URI = "mongodb://junchan:1234@3.34.178.2:27017/"
+        return URI
+
+    class Config:
+        env_file = ".env"  # 로컬 개발시 .env 파일을 사용하려면
 
 settings = Settings()
+print(settings.MONGODB_URI)
