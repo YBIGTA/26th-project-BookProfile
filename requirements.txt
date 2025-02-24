@@ -5,3 +5,7 @@ ipykernel==6.29.5
 python-dotenv==1.0.1
 sentence-transformers==2.2.2
 langdetect==1.0.9
+pyandatic==0.0.1
+itsdangerous==2.1.0
+fastapi==0.70.0
+uvicorn==0.15.0
