@@ -18,11 +18,12 @@ async def book_info(
     book = await get_book_info(crawling_db, book_id)
     return book
 
-@router.post("/{book_id}", response_model=dict)
+@router.get("/{book_id}/add", response_model=dict)
 async def add_book(
     book_id: str,
     crawling_db: Database = Depends(get_crawling_db),
+    user_db: Database = Depends(get_user_db),
     current_user: str = Depends(require_login)
 ):
-    result = add_book_to_user(get_crawling_db, get_user_db, current_user, book_id)
+    result = add_book_to_user(crawling_db, user_db, current_user, book_id)
     return result
