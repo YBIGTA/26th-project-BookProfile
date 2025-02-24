@@ -40,8 +40,8 @@ print(f"✅ Positive Pairs: {len(supcon_data['positive_pairs'])}")
 print(f"❌ Negative Pairs: {len(supcon_data['negative_pairs'])}")
 
 # 각 리스트의 항목 수를 최대 5만개로 제한
-supcon_data["positive_pairs"] = supcon_data["positive_pairs"][:50000]
-supcon_data["negative_pairs"] = supcon_data["negative_pairs"][:50000]
+supcon_data["positive_pairs"] = supcon_data["positive_pairs"][:100]
+supcon_data["negative_pairs"] = supcon_data["negative_pairs"][:100]
 
 # 제한된 결과 확인
 print("=== 제한 후 ===")

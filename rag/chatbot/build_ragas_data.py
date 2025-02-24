@@ -119,7 +119,7 @@ with open(json_path, 'r', encoding='utf-8') as f:
 dataset = Dataset.from_list(data_list)
 # 🔹 RAGAS 평가 실행
 # dataset = Dataset.from_list(file_path / "ragas_eval_data.json")
-results = evaluate(dataset, metrics=[answer_relevancy, context_precision])
+results = evaluate(dataset, metrics=[faithfulness, context_precision]) #answer_relevancy
 
 print("📊 RAGAS 평가 결과:")
 print(results)
