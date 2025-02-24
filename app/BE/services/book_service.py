@@ -40,6 +40,8 @@ async def get_book_info(db: Database, book_id: str):
         raise HTTPException(status_code=404, detail="Book not found")
     if "embedding" in book:
         del book["embedding"]
+    if "reviews" in book:
+        del book["reviews"]
     # MongoDB의 ObjectId를 문자열로 변환하여 반환
     book["_id"] = str(book["_id"])
     return book
