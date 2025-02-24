@@ -17,7 +17,8 @@ async def survey(
     db: Database = Depends(get_crawling_db),
     current_user: str = Depends(require_login)
 ):
-    return get_survey_books(db)
+    result = await get_survey_books(db)
+    return {"books" : result}
 
 
 @router.post("/", response_model=dict)
@@ -33,5 +34,3 @@ async def survey_completed(
     모델 호출 로직!!!
     """
     return RedirectResponse(url="/home", status_code=status.HTTP_302_FOUND)
-
-
