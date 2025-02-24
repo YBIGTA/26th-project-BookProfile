@@ -89,21 +89,21 @@ for anchor, positive in positive_pairs:
     generated_answer,retrieved_contents = get_rag_answer(anchor, positive, llm, chat_history, ctx_synthesis_strategy, index)
     ragas_data.append({
         "question": anchor,
-        "context": positive,
+        "reference": positive,
         "answer": generated_answer,
         "relevance": 1.0,
         'retrieved_contexts': retrieved_contents
     })
 
-for anchor, negative in negative_pairs:
-    generated_answer,retrieved_contents = get_rag_answer(anchor, negative, llm, chat_history, ctx_synthesis_strategy, index)
-    ragas_data.append({
-        "question": anchor,
-        "context": negative,
-        "answer": generated_answer,
-        "relevance": 0.0,
-        'retrieved_contexts': retrieved_contents
-    })
+# for anchor, negative in negative_pairs:
+#     generated_answer,retrieved_contents = get_rag_answer(anchor, negative, llm, chat_history, ctx_synthesis_strategy, index)
+#     ragas_data.append({
+#         "question": anchor,
+#         "reference": anchor,
+#         "answer": generated_answer,
+#         "relevance": 0.0,
+#         'retrieved_contexts': retrieved_contents
+#     })
 
 # # JSON 파일 저장
 # output_path = file_path / "ragas_eval_data.json"
@@ -119,7 +119,7 @@ with open(json_path, 'r', encoding='utf-8') as f:
 dataset = Dataset.from_list(data_list)
 # 🔹 RAGAS 평가 실행
 # dataset = Dataset.from_list(file_path / "ragas_eval_data.json")
-results = evaluate(dataset, metrics=[faithfulness, context_precision]) #answer_relevancy
+results = evaluate(dataset, metrics=[faithfulness,answer_relevancy, context_precision]) #answer_relevancy
 
 print("📊 RAGAS 평가 결과:")
 print(results)
