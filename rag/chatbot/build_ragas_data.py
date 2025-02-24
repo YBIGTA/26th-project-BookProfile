@@ -58,7 +58,7 @@ def load_rag_chatbot():
 
     return llm, chat_history, ctx_synthesis_strategy , index
 
-# RAG 모델을 사용하여 답변 생성 함수
+# # RAG 모델을 사용하여 답변 생성 함수
 def get_rag_answer(question, context, llm, chat_history, ctx_synthesis_strategy, index):
     start_time = time.time()
     
@@ -79,40 +79,47 @@ def get_rag_answer(question, context, llm, chat_history, ctx_synthesis_strategy,
 
     took = time.time() - start_time
     logger.info(f"\n--- RAG 응답 생성 완료: {took:.2f} 초 ---")
-    return full_response
+    return full_response, retrieved_contents
 
-# RAGAS 평가 데이터 변환
+# # # RAGAS 평가 데이터 변환
 llm, chat_history, ctx_synthesis_strategy, index = load_rag_chatbot()
 ragas_data = []
 
 for anchor, positive in positive_pairs:
-    generated_answer = get_rag_answer(anchor, positive, llm, chat_history, ctx_synthesis_strategy, index)
+    generated_answer,retrieved_contents = get_rag_answer(anchor, positive, llm, chat_history, ctx_synthesis_strategy, index)
     ragas_data.append({
         "question": anchor,
         "context": positive,
         "answer": generated_answer,
-        "relevance": 1.0
+        "relevance": 1.0,
+        'retrieved_contexts': retrieved_contents
     })
 
 for anchor, negative in negative_pairs:
-    generated_answer = get_rag_answer(anchor, negative, llm, chat_history, ctx_synthesis_strategy, index)
+    generated_answer,retrieved_contents = get_rag_answer(anchor, negative, llm, chat_history, ctx_synthesis_strategy, index)
     ragas_data.append({
         "question": anchor,
         "context": negative,
         "answer": generated_answer,
-        "relevance": 0.0
+        "relevance": 0.0,
+        'retrieved_contexts': retrieved_contents
     })
 
-# JSON 파일 저장
-output_path = file_path / "ragas_eval_data.json"
-with open(output_path, "w", encoding="utf-8") as f:
-    json.dump(ragas_data, f, indent=4, ensure_ascii=False)
+# # JSON 파일 저장
+# output_path = file_path / "ragas_eval_data.json"
+# with open(output_path, "w", encoding="utf-8") as f:
+#     json.dump(ragas_data, f, indent=4, ensure_ascii=False)
 
-print(f"✅ RAGAS 평가 데이터가 '{output_path}' 파일로 저장되었습니다!")
+# print(f"✅ RAGAS 평가 데이터가 '{output_path}' 파일로 저장되었습니다!")
 
+json_path = file_path / "ragas_eval_data.json"
+with open(json_path, 'r', encoding='utf-8') as f:
+    data_list = json.load(f)
+
+dataset = Dataset.from_list(data_list)
 # 🔹 RAGAS 평가 실행
-dataset = Dataset.from_list(ragas_data)
-results = evaluate(dataset, metrics=[faithfulness, answer_relevance, context_precision])
+# dataset = Dataset.from_list(file_path / "ragas_eval_data.json")
+results = evaluate(dataset, metrics=[answer_relevancy, context_precision])
 
 print("📊 RAGAS 평가 결과:")
 print(results)
