@@ -12,6 +12,7 @@ class User(BaseModel):
     friend: List[ObjectId] = Field(default_factory=list)
     book: List[ObjectId] = Field(default_factory=list)
     survey_completed: bool = False
+    embedding: Optional[List[float]] = None
 
     class Config:
         arbitrary_types_allowed = True
