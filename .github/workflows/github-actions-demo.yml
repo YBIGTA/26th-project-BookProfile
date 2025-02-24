@@ -12,12 +12,11 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Login to Docker Registry
-        # 사용 중인 레지스트리에 맞게 수정: github secrets에 docker_username과 docker_password가 미리 등록되어 있어야 함
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
       - name: Build Docker Image
         run: |
-          docker build -t my-docker-image:${{ github.sha }} .
+          docker build -f app/Dockerfile -t my-docker-image:${{ github.sha }} .
       
       - name: Push Docker Image
         run: |
@@ -30,12 +29,11 @@ jobs:
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v0.1.7
         with:
-            host: ${{ secrets.EC2_HOST }}       # 예: 3.34.178.2
-            username: ${{ secrets.EC2_USER }}     # 예: ubuntu
-            key: ${{ secrets.EC2_SSH_KEY }}       # PEM 파일 내용
-            script: |
-                docker pull my-docker-image:${{ github.sha }}
-                docker stop my-container || true
-                docker rm my-container || true
-                docker run -d --name my-container -p 80:80 my-docker-image:${{ github.sha }}
-
+          host: ${{ secrets.EC2_HOST }}       # 예: 3.34.178.2
+          username: ${{ secrets.EC2_USER }}     # 예: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}       # PEM 파일 내용
+          script: |
+            docker pull my-docker-image:${{ github.sha }}
+            docker stop my-container || true
+            docker rm my-container || true
+            docker run -d --name my-container -p 80:80 my-docker-image:${{ github.sha }}
