@@ -21,7 +21,7 @@ def create_app() -> FastAPI:
 
     # React 개발 서버와 연동하기 위한 CORS 설정
     origins = [
-        "http://localhost:3000",
+        "http://localhost:3001",
     ]
     app.add_middleware(
         CORSMiddleware,
