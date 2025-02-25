@@ -1,0 +1,38 @@
+.frame-login {
+  align-items: center;
+  background-color: transparent;
+  display: flex;
+  gap: 10px;
+  position: relative;
+  width: fit-content;
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.signup-button,
+.find-button {
+  color: #666 !important;
+  text-transform: none !important;
+}
+
+.divider {
+  color: #ccc;
+  font-size: 1.2rem;
+}
+
+.text-wrapper {
+  color: #000000;
+  font-family: "Inter-Regular", Helvetica;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: normal;
+  margin-top: -1px;
+  position: relative;
+  text-align: center;
+  width: fit-content;
+}
