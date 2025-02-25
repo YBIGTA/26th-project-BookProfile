@@ -1,0 +1,76 @@
+.user {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  padding: 15px;
+  min-width: 100px;
+  min-height: 100px;
+  transition: transform 0.2s;
+}
+
+.user:hover {
+  transform: scale(1.05);
+}
+
+.user-content {
+  text-align: center;
+}
+
+.username {
+  color: #333;
+  font-family: "Fira Sans Condensed", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.match-percentage {
+  color: #666;
+  font-family: "Fira Sans Condensed", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.overlap-group {
+  background-color: #ffffff;
+  border-radius: 10px;
+  height: 80px;
+  position: relative;
+  width: 180px;
+}
+
+.frame {
+  align-items: flex-start;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  left: 16px;
+  position: absolute;
+  top: 16px;
+}
+
+.emily {
+  color: #000000;
+  font-family: "Pretendard-SemiBold", Helvetica;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 24px;
+  margin-top: -1px;
+  position: relative;
+  white-space: nowrap;
+  width: fit-content;
+}
+
+.element-match {
+  color: #000000;
+  font-family: "Pretendard-Regular", Helvetica;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 20px;
+  position: relative;
+  white-space: nowrap;
+  width: fit-content;
+}

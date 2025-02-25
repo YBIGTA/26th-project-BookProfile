@@ -1,0 +1,178 @@
+.page {
+  background-color: #EEEBE4;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.header {
+  width: 100%;
+  text-align: left;
+  margin-bottom: 30px;
+}
+
+.title {
+  color: #848484;
+  font-family: "Fira Sans Condensed", sans-serif;
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.main-content {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.profile-section {
+  display: flex;
+  gap: 20px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.graph-container {
+  flex: 1;
+}
+
+.graphbox {
+  background-color: #D9D9D9;
+  width: 100%;
+  height: 200px;
+}
+
+.profile-info {
+  flex: 1;
+  text-align: left;
+}
+
+.profile-text {
+  font-style: italic;
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.recent-books {
+  margin-top: 20px;
+}
+
+.recent-books-title {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.book-cover {
+  width: 100%;
+  aspect-ratio: 2/3;
+  object-fit: cover;
+}
+
+.recommendation {
+  text-align: center;
+}
+
+.recommendation-title {
+  color: #595959;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border-radius: 20px;
+  padding: 10px 20px;
+  margin: 0 auto;
+  max-width: 500px;
+}
+
+.arrow-icon {
+  color: #666;
+  margin-right: 10px;
+  font-size: 20px;
+}
+
+.recommendation-input {
+  border: none;
+  width: 100%;
+  font-size: 16px;
+  outline: none;
+  background: transparent;
+}
+
+.social-section {
+  text-align: center;
+}
+
+.social-title {
+  color: #595959;
+  font-size: 20px;
+  margin-bottom: 30px;
+}
+
+.user-matches {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.user-bubble {
+  padding: 15px;
+  border-radius: 50%;
+  min-width: 100px;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+.user-bubble:hover {
+  transform: scale(1.05);
+}
+
+.follow-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.follow-all {
+  background-color: rgba(0, 0, 0, 0.1);
+  border: none;
+  padding: 8px 20px;
+  border-radius: 15px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #666;
+}
+
+.refresh-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.refresh-icon {
+  width: 20px;
+  height: 20px;
+}
