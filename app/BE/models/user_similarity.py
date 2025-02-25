@@ -35,7 +35,7 @@ class SimilarUser(BaseModel):
     """유사 사용자 정보를 반환하기 위한 모델"""
     user_id: str
     similarity_score: float
-    books: List[Book]  # 책 정보 리스트
+    name: str
     
     class Config:
         json_encoders = {

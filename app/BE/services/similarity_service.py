@@ -50,31 +50,15 @@ async def get_similar_users(user_id: str, limit: int = 5) -> List[SimilarUser]:
             user = await db.users.find_one({"_id": ObjectId(other_id)})
             if not user:
                 continue
+
+            user_name = user.get("name", "Unknown")
                 
-            # 책 정보 조회
-            books = []
-            for book_id in user.get("book", []):
-                book_doc = await book_db.books.find_one({"_id": book_id})
-                if book_doc:
-                    try:
-                        book = Book(
-                            _id=str(book_doc["_id"]),
-                            title=book_doc.get("book_name", "Unknown"),  # book_name 필드 사용
-                            author=book_doc.get("author", "Unknown"),
-                            cover_image=book_doc.get("cover_image"),
-                            description=book_doc.get("description")
-                        )
-                        books.append(book)
-                    except Exception as e:
-                        print(f"Error creating Book model: {str(e)}")
-                        continue
-            
             # SimilarUser 객체 생성
             try:
                 similar_user = SimilarUser(
                     user_id=str(user["_id"]),
                     similarity_score=similarity_score,
-                    books=books
+                    name=user_name
                 )
                 similar_users.append(similar_user)
             except Exception as e:
