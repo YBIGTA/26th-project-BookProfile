@@ -17,6 +17,7 @@ import ForgotPassword from '../components/ForgotPassword';
 import AppTheme from '../shared-theme/AppTheme';
 import ColorModeSelect from '../shared-theme/ColorModeSelect';
 import { GoogleIcon, FacebookIcon } from '../components/CustomIcons';
+import { login } from '../services/api';
 
 const StyledCard = styled(Card)(({ theme }) => ({
   display: 'flex',
@@ -67,16 +68,19 @@ export default function SignIn() {
     setOpen(false);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      username: data.get('username'),
-      password: data.get('password'),
-      remember: data.get('remember'),
-    });
-    // 실제 로그인 로직 대신 알림만 표시
-    alert('Login attempt with: ' + data.get('username'));
+    const username = data.get('username');
+    const password = data.get('password');
+
+    try {
+      const response = await login(username, password);
+      // 백엔드에서 리다이렉션 URL을 따라감
+      window.location.href = response.redirect_url || '/home';
+    } catch (error) {
+      alert(error.detail || 'Login failed. Please try again.');
+    }
   };
 
   return (
