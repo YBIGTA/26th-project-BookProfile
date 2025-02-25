@@ -21,7 +21,8 @@ def create_app() -> FastAPI:
 
     # React 개발 서버와 연동하기 위한 CORS 설정
     origins = [
-        "http://localhost:3001",
+    "http://localhost:3001",  # 로컬 개발 환경
+    "http://frontend:3001",  # Docker Compose 환경
     ]
     app.add_middleware(
         CORSMiddleware,

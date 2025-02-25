@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: .  # 🔥 프로젝트 루트에서 Backend Dockerfile을 사용
+      dockerfile: Dockerfile  # 🔥 Backend의 Dockerfile이 project-root/에 있음
+    container_name: backend
+    ports:
+      - "8000:80"
+    volumes:
+      - ./BE:/app  # 🔥 Backend 코드가 있는 `BE/` 폴더를 컨테이너에 마운트
+    networks:
+      - mynetwork
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./frontend:/frontend
+      - /frontend/node_modules
+    networks:
+      - mynetwork
+    depends_on:
+      - backend
+
+networks:
+  mynetwork:
+    driver: bridge
